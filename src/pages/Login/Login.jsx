@@ -8,9 +8,9 @@ function Login() {
   const [error, setError] = useState('');
   const { login, isAuthenticated, loading } = useAuth();
 
-  // Si ya está autenticado, redirigir a emotions
+  // Si ya está autenticado, redirigir a home
   if (isAuthenticated) {
-    return <Navigate to="/emotions" replace />;
+    return <Navigate to="/home" replace />;
   }
 
   // Si está cargando, mostrar loading

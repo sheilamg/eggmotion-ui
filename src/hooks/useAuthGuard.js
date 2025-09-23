@@ -31,3 +31,4 @@ export const useAuthGuard = () => {
 
   return { isAuthenticated, loading };
 };
+

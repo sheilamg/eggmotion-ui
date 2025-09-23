@@ -58,3 +58,5 @@ export const getLocalConfig = (key) => {
 export const getApiBaseUrl = () => {
   return LOCAL_CONFIG.API.BASE_URL;
 };
+
+

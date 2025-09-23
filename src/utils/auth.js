@@ -67,3 +67,4 @@ export const isTokenExpiringSoon = (token, minutes = 5) => {
   
   return minutesUntilExpiration <= minutes;
 };
+

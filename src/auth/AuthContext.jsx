@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }) => {
       authState.updateUser(profile.data);
       
       console.log('🎉 Login completo, redirigiendo...');
-      navigate('/emotions');
+      navigate('/home');
     } catch (error) {
       console.error('❌ Error during login:', error);
       throw error;
@@ -64,9 +64,5 @@ export const AuthProvider = ({ children }) => {
 };
 
 export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+  return useContext(AuthContext);
 };
