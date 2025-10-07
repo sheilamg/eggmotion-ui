@@ -5,15 +5,15 @@ import styles from "./TextRevealHome.module.css";
 
 const text = ["¿","Cómo", "me", "siento", "hoy", "?"];
 
-const TextRevealHome = () => {
+const TextRevealHome = ({isMenuOpen, setIsMenuOpen, setSelection, onComplete}) => {
   
   return (
     <motion.h1
       variants={container}
       initial="hidden"
       animate="visible"
-      //className="flex gap-2 text-4xl text-neonPink font-light"
       className={styles.title}
+      onAnimationComplete={onComplete}
     >
       {text.map((word, i) => (
         <motion.span 
@@ -21,7 +21,7 @@ const TextRevealHome = () => {
          variants={glowItem}
          className={styles.text}
          >
-          {word === "hoy" ? <motion.span className={styles.buttonWrapper}><TodayButton /></motion.span> : word}
+          {word === "hoy" ? <motion.span className={styles.buttonWrapper}><TodayButton isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} setSelection={setSelection}/></motion.span> : word}
         </motion.span>
       ))}
     </motion.h1>
