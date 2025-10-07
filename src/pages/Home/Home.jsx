@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Button, Paper, Stack, TextField, Tooltip, Typography, Collapse } from '@mui/material';
 import { AnimatePresence, motion } from "motion/react"
@@ -6,6 +6,7 @@ import LockIcon from '@mui/icons-material/Lock';
 import TextRevealHome from '../../components/text/TextRevealHome';
 import LavaBackground from '../../components/background/lavaBackground';
 import egg320 from "../../assets/egg320.gif"
+import eggfalling320 from "../../assets/eggfalling320.gif"
 
 function Home() {
   const navigate = useNavigate();
@@ -25,7 +26,10 @@ function Home() {
     const min = String(now.getMinutes()).padStart(2, '0');
     return `${hh}:${min}`;
   });
+
+  //img animation
   const [showGif, setShowGif] = useState(false);
+  const [phase, setPhase] = useState("falling");
 
   const creationDateIso = useMemo(() => {
     if (selection === 'hoy') {
@@ -41,17 +45,19 @@ function Home() {
     setIsMenuOpen((v) => !v);
   };
 
-  // const handleOtroDia = () => {
-  //   setSelection('otro');
-  //   setIsMenuOpen(false);
-  // };
-
   const handleContinue = () => {
     try {
       sessionStorage.setItem('creationDate', creationDateIso);
     } catch {}
     navigate('/create');
   };
+
+  useEffect(() => {
+    if (showGif && phase === "falling") {
+      const timer = setTimeout(() => setPhase("idle"), 4100); // duración de la caída
+      return () => clearTimeout(timer);
+    }
+  }, [showGif, phase]);
 
   //bg color --> [#cdd8d2]
   return (
@@ -89,22 +95,58 @@ function Home() {
         )}
 
         <AnimatePresence>
-      { showGif && (
-        <motion.img src={egg320} alt="Animacion" 
-        style={{
-          position: "absolute",
-          top: "50%",
-          left: "20%",
-          width: "200px",
-          transform: "translate(-50%, -50%)",
-          pointerEvents: "none",
-        }}
-        initial={{ y: 20, scale: 0.95 }}  // solo posición y escala inicial
-            animate={{ y: 0, scale: 1 }}      // movimiento fluido
-            transition={{ duration: 1.5, ease: "easeIn" }}
-            exit={{ y: 20, scale: 0.95 }}     // si desaparece, también fluido
-        />)}  
-    </AnimatePresence>
+          { showGif && ( 
+          <>
+           { phase == "falling" && (
+            <motion.img
+              key="falling"
+              src={eggfalling320}
+              alt="Personaje cayendo"
+              style={{
+                position: "absolute",
+                top: "0%",
+                left: "20%",
+                width: "200px",
+                transform: "translate(-50%, 0)",
+                pointerEvents: "none",
+              }}
+              initial={{ y: "-20%", opacity: 1 }}
+              animate={{
+                y: "50vh",
+                opacity: 1,
+                transition: {
+                  duration: 4,
+                  ease: "linear",
+                },
+              }}
+              exit={{ opacity: 0, transition: { duration: 0.5 } }}
+            />
+           )}
+
+           {phase == "idle" && (
+             <motion.img 
+             key="idle"
+             src={egg320} 
+             alt="Animacion" 
+             style={{
+               position: "absolute",
+               top: "50%",
+               left: "20%",
+               width: "200px",
+               transform: "translate(-50%, -50%)",
+               pointerEvents: "none",
+             }}
+             //initial={{ y: 20, scale: 0.95 }}  // solo posición y escala inicial
+             initial={{ opacity: 0, scale: 0.9 }}
+             animate={{ opacity: 1, scale: 1, transition: { duration: 1.2, ease: "easeOut"}}}
+             //animate={{ y: 0, scale: 1 }}      // movimiento fluido
+             //transition={{ duration: 1.5, ease: "easeIn" }}
+             //exit={{ y: 20, scale: 0.95 }}     // si desaparece, también fluido
+             /> 
+           )}
+          </>
+          )}  
+        </AnimatePresence>
       </Box>
 
       <Box className="px-4 pb-8">
