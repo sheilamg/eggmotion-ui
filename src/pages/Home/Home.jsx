@@ -4,6 +4,7 @@ import { Box, Button, Paper, Stack, TextField, Tooltip, Typography, Collapse } f
 import { motion } from "motion/react"
 import LockIcon from '@mui/icons-material/Lock';
 import TextRevealHome from '../../components/text/TextRevealHome';
+import LavaBackground from '../../components/background/lavaBackground';
 
 function Home() {
   const navigate = useNavigate();
@@ -54,6 +55,7 @@ function Home() {
   return (
     <Box className="flex flex-col min-h-screen bg-radial-gradient(circle at top, #2C2545 0%, #1C1928 100%) text-white">
       <Box className="flex-1 flex flex-col items-center px-4 pt-12">
+      <LavaBackground/>
         {/* <motion.h1 
         initial={{opacity: 0}} 
         animate={{ 

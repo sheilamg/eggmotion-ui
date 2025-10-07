@@ -1,0 +1,38 @@
+.container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 0; /* Asegurarse de que esté detrás de todos los elementos */
+    pointer-events: none; /* Para que no interfiera con clicks */
+  }
+  
+  .ball1,
+  .ball2 {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+    opacity: 0.25;
+    z-index: 0;
+  }
+  
+  /* Bola 1: rosa-lila */
+  .ball1 {
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(201,175,255,0.6) 0%, rgba(201,175,255,0) 70%);
+    top: 10%;
+    left: 5%;
+  }
+  
+  /* Bola 2: azul-celeste */
+  .ball2 {
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(0,255,255,0.4) 0%, rgba(0,255,255,0) 70%);
+    top: 50%;
+    left: 60%;
+  }
+  
