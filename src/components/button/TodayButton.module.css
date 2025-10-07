@@ -1,0 +1,119 @@
+.container {
+    position: relative;
+    display: inline-block;
+  }
+  
+  /* 🌥️ Botón principal estilo nube */
+  .cloudButton {
+    background: rgba(255, 255, 255, 0.08);
+    border: 2px solid #c9afff;
+    color: #e5deff;
+    border-radius: 50px;
+    padding: 0.8rem 2.2rem;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 2.2rem;
+    cursor: pointer;
+    outline: none;
+    backdrop-filter: blur(10px);
+    box-shadow:
+      0 0 10px rgba(185, 150, 255, 0.6),
+      inset 0 0 10px rgba(201, 175, 255, 0.4);
+    transition: all 0.4s ease;
+  }
+  
+  /* ☁️ Burbuja con opciones */
+  .optionsBubble {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 1rem;
+    background: rgba(30, 25, 50, 0.8);
+    border: 2px solid #b094ff;
+    border-radius: 1.5rem;
+    padding: 1rem 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 0 18px rgba(176, 148, 255, 0.6);
+  }
+  
+  /* ✨ Botones dentro de la burbuja */
+  /* .optionButton {
+    background: transparent;
+    border: none;
+    color: #d7cfff;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: color 0.2s ease, text-shadow 0.2s ease;
+    font-family: 'Orbitron', sans-serif;
+  }
+  
+  .optionButton:hover {
+    color: #ffffff;
+    text-shadow: 0 0 8px #c9afff, 0 0 15px #b094ff;
+  } */
+
+  
+  .button {
+    position: relative;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 1.5rem 3rem;
+    color: #e5deff;
+    font-family: "Orbitron", sans-serif;
+    font-size: 2rem;
+    font-weight: 400;
+    letter-spacing: 1px;
+    text-align: center;
+    overflow: visible;
+  }
+  
+  .cloudSvg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 0 8px #b094ff) drop-shadow(0 0 16px #c9afff);
+    pointer-events: none;
+  }
+  
+  .label {
+    position: relative;
+    z-index: 2;
+    text-shadow: 0 0 4px #b094ff, 0 0 8px #c9afff;
+  }
+  
+  .popup {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 1rem;
+    background: rgba(20, 18, 30, 0.9);
+    border: 1px solid #b094ff;
+    border-radius: 1rem;
+    box-shadow: 0 0 15px rgba(201, 175, 255, 0.5);
+    padding: 0.8rem 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    z-index: 3;
+    backdrop-filter: blur(8px);
+  }
+  
+  .option {
+    background: transparent;
+    color: #e5deff;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    transition: color 0.2s ease;
+  }
+  
+  .option:hover {
+    color: #ffffff;
+    text-shadow: 0 0 8px #c9afff;
+  }

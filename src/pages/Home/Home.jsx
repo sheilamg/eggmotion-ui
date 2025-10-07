@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Button, Paper, Stack, TextField, Tooltip, Typography, Collapse } from '@mui/material';
+import { motion } from "motion/react"
 import LockIcon from '@mui/icons-material/Lock';
+import TextRevealHome from '../../components/text/TextRevealHome';
 
 function Home() {
   const navigate = useNavigate();
@@ -48,35 +50,54 @@ function Home() {
     navigate('/create');
   };
 
+  //bg color --> [#cdd8d2]
   return (
-    <Box className="flex flex-col min-h-screen bg-gray-900 text-white">
+    <Box className="flex flex-col min-h-screen bg-radial-gradient(circle at top, #2C2545 0%, #1C1928 100%) text-white">
       <Box className="flex-1 flex flex-col items-center px-4 pt-12">
-        <Typography
-          variant="h4"
-          align="center"
-          className={`font-semibold transition-transform duration-300 ${
-            selection === 'otro' ? '-translate-y-2' : ''
-          }`}
-        >
+        {/* <motion.h1 
+        initial={{opacity: 0}} 
+        animate={{ 
+          opacity: [0,1,0.8,1],
+          textShadow: ["0 0 0px #B094FF",
+          "0 0 6px #B094FF",
+          "0 0 12px #B094FF",
+          "0 0 8px #B094FF, 0 0 24px #C9AFFF",]}}
+          transition={{ duration: 1.8, ease: "easeInOut", times: [0,0.4,0.6,1]}}
+          style={{
+            fontFamily: "'Orbitron', sans-serif", 
+            fontWeight: "400",
+            textAlign: "center",
+            fontSize: "2.5rem",
+            color: "#e5deff",
+            letterSpacing: "1px"
+          }}
+          >
           ¿Cómo me siento{' '}
           <span className="relative inline-block">
             {isMenuOpen && (
               <span className="absolute -inset-1 rounded-full ring-2 ring-purple-500 animate-pulse"></span>
             )}
-            <Button
-              variant="text"
-              size="large"
-              onClick={handleHoyClick}
-              className={`relative z-10 underline decoration-dotted underline-offset-4 normal-case px-1 rounded-full ${
-                isMenuOpen ? 'text-purple-400' : 'text-purple-300'
-              }`}
-              aria-expanded={isMenuOpen}
-              aria-controls="hoy-radial-menu"
+            <motion.button
+              whileHover={{
+                scale: 1.05,
+                textShadow: "0 0 8px #FFB3B3, 0 0 16px #FFD580",
+                color: "#FFD580",
+              }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              style={{
+                border: "none",
+                background: "transparent",
+                color: "#FFB3B3",
+                fontWeight: 600,
+                fontFamily: "'Orbitron', sans-serif",
+                textShadow: "0 0 6px #FFB3B3, 0 0 12px #FFB3B355",
+                cursor: "pointer",
+                padding: "0 0.2em",
+              }}
             >
               hoy
-            </Button>
-
-            {/* Keep 'mañana' anchored to the right of 'hoy' */}
+            </motion.button>  
+            
             <Box
               id="hoy-radial-menu"
               className="pointer-events-none absolute left-1/2 top-1/2"
@@ -101,9 +122,8 @@ function Home() {
             </Box>
           </span>
           ?
-        </Typography>
+        </motion.h1>
 
-        {/* 'otro día' below 'hoy' pushing layout */}
         <Collapse in={isMenuOpen} timeout={250} unmountOnExit>
           <Box className="mt-1 flex justify-center">
             <Button
@@ -114,7 +134,8 @@ function Home() {
               otro día
             </Button>
           </Box>
-        </Collapse>
+        </Collapse> */}
+        <TextRevealHome />
 
         {selection === 'otro' && (
           <Stack spacing={2} className="mt-8 w-full max-w-sm">

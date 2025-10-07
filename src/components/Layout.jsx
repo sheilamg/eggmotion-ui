@@ -20,7 +20,7 @@ import {
   Button,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import MenuOpenIcon from '@mui/icons-material/MenuOpen';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import HomeIcon from '@mui/icons-material/Home';
 import EmojiEmotionsIcon from '@mui/icons-material/EmojiEmotions';
 import HistoryIcon from '@mui/icons-material/History';
@@ -33,7 +33,7 @@ const Layout = () => {
   const { user, logout } = useAuth();
   const { loading } = useAuthGuard();
   const [mobileOpen, setMobileOpen] = React.useState(false);
-  const [collapsed, setCollapsed] = React.useState(false);
+  const [sidebarOpen, setSidebarOpen] = React.useState(false);
 
   if (loading) {
     return (
@@ -50,8 +50,8 @@ const Layout = () => {
     setMobileOpen((prev) => !prev);
   };
 
-  const handleCollapseToggle = () => {
-    setCollapsed((prev) => !prev);
+  const handleSidebarToggle = () => {
+    setSidebarOpen((prev) => !prev);
   };
 
   const navItems = [
@@ -62,12 +62,12 @@ const Layout = () => {
     { to: '/analytics', label: 'Analytics', icon: <InsightsIcon /> },
   ];
 
-  const currentDrawerWidth = collapsed ? 72 : drawerWidth;
+  // No necesitamos calcular el ancho del drawer ya que ahora será temporal
 
-  const drawer = (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }} className="bg-gray-900 text-white">
-      <Box sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: collapsed ? 'center' : 'space-between' }}>
-        <Typography variant="h6" className="text-white" sx={{ opacity: collapsed ? 0 : 1, transition: 'opacity 150ms' }}>
+  const sidebar = (
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', bgcolor: '#1a1a1a' }} className="text-white">
+      <Box sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Typography variant="h6" className="text-white">
           Eggmotions
         </Typography>
       </Box>
@@ -78,22 +78,23 @@ const Layout = () => {
             <ListItemButton
               component={NavLink}
               to={item.to}
+              onClick={() => setSidebarOpen(false)} // Cerrar sidebar al hacer clic en un enlace
               sx={{
                 minHeight: 48,
-                justifyContent: collapsed ? 'center' : 'flex-start',
-                px: collapsed ? 1 : 2,
+                justifyContent: 'flex-start',
+                px: 2,
                 '&.active': { bgcolor: 'rgba(124, 58, 237, 0.15)' },
               }}
             >
               <ListItemIcon sx={{
                 minWidth: 0,
-                mr: collapsed ? 0 : 2,
+                mr: 2,
                 justifyContent: 'center',
                 color: 'rgba(209,213,219,1)'
               }}>
                 {item.icon}
               </ListItemIcon>
-              {!collapsed && <ListItemText primary={item.label} />}
+              <ListItemText primary={item.label} />
             </ListItemButton>
           </ListItem>
         ))}
@@ -104,14 +105,12 @@ const Layout = () => {
           <Divider className="!border-gray-800 mb-2" />
           <Box className="flex items-center gap-3">
             <Avatar alt={user.email} src="" sx={{ width: 32, height: 32 }} />
-            {!collapsed && (
-              <Box>
-                <Typography variant="body2" className="text-gray-300">{user.email}</Typography>
-                <Button size="small" variant="outlined" color="error" onClick={logout} className="!mt-1">
-                  Cerrar sesión
-                </Button>
-              </Box>
-            )}
+            <Box>
+              <Typography variant="body2" className="text-gray-300">{user.email}</Typography>
+              <Button size="small" variant="outlined" color="error" onClick={logout} className="!mt-1">
+                Cerrar sesión
+              </Button>
+            </Box>
           </Box>
         </Box>
       )}
@@ -119,14 +118,13 @@ const Layout = () => {
   );
 
   return (
-    <Box sx={{ display: 'flex' }} className="bg-gray-900 text-white min-h-screen">
+    <Box sx={{ display: 'flex', bgcolor: '#1a1a1a' }} className="text-white min-h-screen">
       <CssBaseline />
       <AppBar
         position="fixed"
         sx={{
-          width: { sm: `calc(100% - ${currentDrawerWidth}px)` },
-          ml: { sm: `${currentDrawerWidth}px` },
-          bgcolor: '#111827',
+          width: '100%',
+          bgcolor: '#1a1a1a',
         }}
       >
         <Toolbar>
@@ -142,42 +140,42 @@ const Layout = () => {
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
             {navItems.find(n => n.to === window.location.pathname)?.label || 'Eggmotions'}
           </Typography>
-          <IconButton color="inherit" onClick={handleCollapseToggle} sx={{ display: { xs: 'none', sm: 'inline-flex' } }}>
-            <MenuOpenIcon />
+          <IconButton color="inherit" onClick={handleSidebarToggle}>
+            <MoreVertIcon />
           </IconButton>
         </Toolbar>
       </AppBar>
-      <Box
-        component="nav"
-        sx={{ width: { sm: currentDrawerWidth }, flexShrink: { sm: 0 } }}
-        aria-label="sidebar"
+      {/* Drawer temporal para móviles */}
+      <Drawer
+        variant="temporary"
+        open={mobileOpen}
+        onClose={handleDrawerToggle}
+        ModalProps={{ keepMounted: true }}
+        sx={{
+          display: { xs: 'block', sm: 'none' },
+          '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth, bgcolor: '#1a1a1a', color: '#fff' },
+        }}
       >
-        <Drawer
-          variant="temporary"
-          open={mobileOpen}
-          onClose={handleDrawerToggle}
-          ModalProps={{ keepMounted: true }}
-          sx={{
-            display: { xs: 'block', sm: 'none' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth, bgcolor: '#0f172a', color: '#fff' },
-          }}
-        >
-          {drawer}
-        </Drawer>
-        <Drawer
-          variant="permanent"
-          sx={{
-            display: { xs: 'none', sm: 'block' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: currentDrawerWidth, bgcolor: '#0f172a', color: '#fff', transition: 'width 150ms' },
-          }}
-          open
-        >
-          {drawer}
-        </Drawer>
-      </Box>
+        {sidebar}
+      </Drawer>
+      
+      {/* Drawer temporal para desktop que se abre desde la derecha */}
+      <Drawer
+        anchor="right"
+        variant="temporary"
+        open={sidebarOpen}
+        onClose={handleSidebarToggle}
+        ModalProps={{ keepMounted: true }}
+        sx={{
+          display: { xs: 'none', sm: 'block' },
+          '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth, bgcolor: '#1a1a1a', color: '#fff' },
+        }}
+      >
+        {sidebar}
+      </Drawer>
       <Box
         component="main"
-        sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${currentDrawerWidth}px)` } }}
+        sx={{ flexGrow: 1, p: 3, width: '100%' }}
       >
         <Toolbar />
         <Outlet />
