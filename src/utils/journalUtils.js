@@ -51,5 +51,8 @@ export function getCheckInsForLinking(checkIns, entryDateValue) {
 
 export function getFirstStickerEmoji(entry) {
   const stickers = entry?.content?.stickers;
-  return Array.isArray(stickers) && stickers.length ? stickers[0].emoji : null;
+  if (!Array.isArray(stickers) || !stickers.length) return null;
+  const first = stickers[0];
+  if (first.type === 'drawing' || first.src) return '✏️';
+  return first.emoji || null;
 }

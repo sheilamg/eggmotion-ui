@@ -20,9 +20,14 @@ function formatDayLabel(iso) {
   });
 }
 
-export default function InteractiveHeatmap({ entries, days, showModeToggle = false }) {
+export default function InteractiveHeatmap({
+  entries,
+  days,
+  showModeToggle = false,
+  heatmapData,
+}) {
   const navigate = useNavigate();
-  const heatmap = buildEnhancedHeatmapData(entries, days);
+  const heatmap = heatmapData || buildEnhancedHeatmapData(entries, days);
   const weekCount = Math.ceil(days / 7);
   const weeks = Array.from({ length: weekCount }, (_, w) => heatmap.slice(w * 7, w * 7 + 7));
   const [mode, setMode] = useState('emotion');

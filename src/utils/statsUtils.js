@@ -78,6 +78,51 @@ export function buildEnhancedHeatmapData(entries, days) {
   });
 }
 
+export function filterEntriesByYear(entries, year) {
+  return (entries || []).filter(
+    (entry) => new Date(entry.creationDate).getFullYear() === year,
+  );
+}
+
+function buildDayHeatmapCell(iso, dayEntries) {
+  const intensities = dayEntries.map((entry) => entry.intensity || 0);
+  const avgIntensity = intensities.length
+    ? intensities.reduce((sum, value) => sum + value, 0) / intensities.length
+    : 0;
+
+  const emotionCounts = {};
+  dayEntries.forEach((entry) => {
+    const label = entry.emotion?.emotion || entry.emotion?.name;
+    if (label) emotionCounts[label] = (emotionCounts[label] || 0) + 1;
+  });
+
+  const dominant = Object.entries(emotionCounts).sort((a, b) => b[1] - a[1])[0];
+  const primary = dayEntries[dayEntries.length - 1] || null;
+
+  return {
+    date: iso,
+    entries: dayEntries,
+    entry: primary,
+    count: dayEntries.length,
+    avgIntensity,
+    dominantLabel: dominant?.[0] || null,
+    intensity: primary?.intensity || 0,
+  };
+}
+
+export function buildCalendarYearHeatmapData(entries, year) {
+  const filtered = filterEntriesByYear(entries, year);
+  const byDate = groupEntriesByDay(filtered);
+  const isLeap = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+  const totalDays = isLeap ? 366 : 365;
+
+  return Array.from({ length: totalDays }, (_, i) => {
+    const date = new Date(year, 0, i + 1);
+    const iso = getDayKey(date);
+    return buildDayHeatmapCell(iso, byDate[iso] || []);
+  });
+}
+
 export function buildEvolutionSeries(entries, days, emotionFilter = null) {
   const byDate = groupEntriesByDay(entries);
   const normalizedFilter = emotionFilter?.toLowerCase();

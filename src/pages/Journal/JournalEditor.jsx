@@ -13,6 +13,8 @@ import EditorMenuDropdown from '../../components/journal/EditorMenuDropdown';
 import JournalBodyEditor from '../../components/journal/JournalBodyEditor';
 import JournalRichTextToolbar from '../../components/journal/JournalRichTextToolbar';
 import JournalStickerLayer from '../../components/journal/JournalStickerLayer';
+import DrawingOverlay from '../../components/journal/DrawingOverlay';
+import AiAnalysisDisclaimer from '../../components/ai/AiAnalysisDisclaimer';
 
 export default function JournalEditor({ entryId }) {
   const navigate = useNavigate();
@@ -48,6 +50,7 @@ export default function JournalEditor({ entryId }) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [showLinkModal, setShowLinkModal] = useState(false);
+  const [showDrawing, setShowDrawing] = useState(false);
 
   const canvasRef = useRef(null);
   const stickerBtnRef = useRef(null);
@@ -57,13 +60,20 @@ export default function JournalEditor({ entryId }) {
 
   const placementMode = Boolean(pendingEmoji);
   const stickerModeActive = placementMode || stickerEditMode || Boolean(selectedStickerId);
-  const textEditable = !stickerModeActive;
+  const textEditable = !stickerModeActive && !showDrawing;
 
   useEffect(() => {
     if (entryId === 'new' && journalId) {
       navigate(`/journal/${journalId}`, { replace: true });
     }
   }, [entryId, journalId, navigate]);
+
+  useEffect(() => {
+    if (loading) {
+      bodyEditorRef.current = null;
+      setEditorInstance(null);
+    }
+  }, [loading]);
 
   useEffect(() => {
     if (!pendingEmoji) return undefined;
@@ -107,6 +117,35 @@ export default function JournalEditor({ entryId }) {
     },
     [addSticker, pendingEmoji],
   );
+
+  const handleDrawingComplete = useCallback(
+    (dataUrl) => {
+      setShowDrawing(false);
+      const stickerId = `${Date.now()}`;
+      addSticker({
+        id: stickerId,
+        type: 'drawing',
+        src: dataUrl,
+        x: 50,
+        y: 45,
+        rotation: 0,
+        scaleX: 1,
+        scaleY: 1,
+      });
+      setStickerEditMode(true);
+      setSelectedStickerId(stickerId);
+      setPendingEmoji(null);
+    },
+    [addSticker],
+  );
+
+  const handleOpenDrawing = () => {
+    setShowDrawing(true);
+    setShowStickerPicker(false);
+    setPendingEmoji(null);
+    setStickerEditMode(false);
+    setSelectedStickerId(null);
+  };
 
   const handleLinkConfirm = (checkInId) => {
     if (!checkInId) {
@@ -380,7 +419,15 @@ export default function JournalEditor({ entryId }) {
         />
       </div>
 
-      <JournalRichTextToolbar editor={editorInstance} disabled={!textEditable} />
+      <JournalRichTextToolbar
+        editor={editorInstance}
+        disabled={!textEditable}
+        onDrawClick={handleOpenDrawing}
+      />
+
+      <div className="px-4 lg:px-8">
+        <AiAnalysisDisclaimer context="journal" />
+      </div>
 
       {selectedStickerId && (
         <p className="px-4 lg:px-8 pb-2 text-xs" style={{ color: 'var(--text2)' }}>
@@ -446,6 +493,12 @@ export default function JournalEditor({ entryId }) {
         entryDate={entryDate}
         selectedId={linkedCheckIn?.id}
         onConfirm={handleLinkConfirm}
+      />
+
+      <DrawingOverlay
+        open={showDrawing}
+        onComplete={handleDrawingComplete}
+        onDiscard={() => setShowDrawing(false)}
       />
 
       {showDeleteConfirm && (

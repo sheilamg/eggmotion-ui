@@ -1,6 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUserEmotionsCalendar } from '../hooks/useUserEmotionsCalendar';
+import { useAuth } from '../auth/AuthContext';
+import { getPatternInsights, getRetrospective, getWeeklyInsight } from '../api/insights';
 import { filterEntriesByPeriod, STATS_PERIODS } from '../utils/emotionUtils';
 import {
   buildFullEmotionDistribution,
@@ -18,6 +20,8 @@ import EmotionEvolutionChart from '../components/analytics/EmotionEvolutionChart
 import InteractiveHeatmap from '../components/analytics/InteractiveHeatmap';
 import PeriodComparison from '../components/analytics/PeriodComparison';
 import StatsUnlockBanner, { LockedSection } from '../components/analytics/StatsUnlockBanner';
+import AiInsightsSection from '../components/analytics/AiInsightsSection';
+import RetrospectiveTeaserCard from '../components/analytics/RetrospectiveTeaserCard';
 
 function PeriodSelector({ period, onChange }) {
   return (
@@ -49,8 +53,19 @@ function PeriodSelector({ period, onChange }) {
 
 export default function Analytics() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { userEmotions, loading } = useUserEmotionsCalendar();
   const [period, setPeriod] = useState('month');
+  const [patternsData, setPatternsData] = useState(null);
+  const [patternsLoading, setPatternsLoading] = useState(false);
+  const [patternsError, setPatternsError] = useState('');
+  const [weeklyError, setWeeklyError] = useState('');
+  const [weeklyData, setWeeklyData] = useState(null);
+  const [weeklyLoading, setWeeklyLoading] = useState(false);
+  const [retrospectiveData, setRetrospectiveData] = useState(null);
+  const [retrospectiveLoading, setRetrospectiveLoading] = useState(false);
+
+  const aiEnabled = user?.preferences?.aiAnalysis === true;
 
   const periodConfig = STATS_PERIODS[period];
   const periodEntries = useMemo(
@@ -76,6 +91,66 @@ export default function Analytics() {
   const tier = getStatsUnlockTier(periodEntries.length);
   const heatmapDays = getHeatmapDaysForPeriod(period);
   const totalEntries = periodEntries.length;
+
+  useEffect(() => {
+    if (loading || tier === 'empty') return;
+
+    let cancelled = false;
+
+    const loadInsights = async () => {
+      try {
+        setPatternsLoading(true);
+        setWeeklyLoading(true);
+        setRetrospectiveLoading(true);
+        setPatternsError('');
+        setWeeklyError('');
+
+        const [patternsResult, weeklyResult, retrospectiveResult] =
+          await Promise.allSettled([
+            getPatternInsights(),
+            getWeeklyInsight(),
+            getRetrospective(),
+          ]);
+
+        if (cancelled) return;
+
+        if (patternsResult.status === 'fulfilled') {
+          setPatternsData(patternsResult.value.data);
+        } else {
+          setPatternsData(null);
+          setPatternsError(
+            'No pudimos cargar los patrones de IA. Probá de nuevo más tarde.',
+          );
+        }
+
+        if (weeklyResult.status === 'fulfilled') {
+          setWeeklyData(weeklyResult.value.data);
+        } else {
+          setWeeklyData(null);
+          setWeeklyError(
+            'No pudimos cargar el insight semanal. Probá de nuevo más tarde.',
+          );
+        }
+
+        if (retrospectiveResult.status === 'fulfilled') {
+          setRetrospectiveData(retrospectiveResult.value.data);
+        } else {
+          setRetrospectiveData(null);
+        }
+      } finally {
+        if (!cancelled) {
+          setPatternsLoading(false);
+          setWeeklyLoading(false);
+          setRetrospectiveLoading(false);
+        }
+      }
+    };
+
+    loadInsights();
+    return () => {
+      cancelled = true;
+    };
+  }, [loading, tier, aiEnabled]);
 
   if (loading) {
     return (
@@ -121,7 +196,19 @@ export default function Analytics() {
 
       <PeriodSelector period={period} onChange={setPeriod} />
 
-      <StatsUnlockBanner tier={tier} totalEntries={totalEntries} patterns={patterns} />
+      <StatsUnlockBanner tier={tier} totalEntries={totalEntries} patterns={patterns} aiEnabled={aiEnabled} />
+
+      <AiInsightsSection
+        patternsData={patternsData}
+        patternsLoading={patternsLoading}
+        patternsError={patternsError}
+        weeklyData={weeklyData}
+        weeklyLoading={weeklyLoading}
+        weeklyError={weeklyError}
+        aiEnabled={aiEnabled}
+      />
+
+      <RetrospectiveTeaserCard data={retrospectiveData} loading={retrospectiveLoading} />
 
       <div className="lg:grid lg:grid-cols-2 lg:gap-6">
         <EmotionDistribution distribution={distribution} />

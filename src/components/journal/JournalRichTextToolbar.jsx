@@ -17,6 +17,7 @@ const TOOLBAR_GROUPS = [
 ];
 
 function runCommand(editor, cmd) {
+  if (!editor || editor.isDestroyed) return;
   const chain = editor.chain().focus();
   switch (cmd) {
     case 'bold':
@@ -45,7 +46,7 @@ function runCommand(editor, cmd) {
   }
 }
 
-export default function JournalRichTextToolbar({ editor, disabled = false }) {
+export default function JournalRichTextToolbar({ editor, disabled = false, onDrawClick }) {
   const [, rerender] = useReducer((n) => n + 1, 0);
 
   useEffect(() => {
@@ -59,7 +60,7 @@ export default function JournalRichTextToolbar({ editor, disabled = false }) {
     };
   }, [editor]);
 
-  if (!editor) return null;
+  if (!editor || editor.isDestroyed) return null;
 
   return (
     <div
@@ -118,6 +119,33 @@ export default function JournalRichTextToolbar({ editor, disabled = false }) {
           </div>
         ))}
       </div>
+
+      {onDrawClick && (
+        <>
+          <span
+            className="mx-1 h-5 w-px shrink-0"
+            style={{ backgroundColor: 'var(--border)' }}
+            aria-hidden
+          />
+          <button
+            type="button"
+            title="Modo dibujo"
+            aria-label="Modo dibujo"
+            disabled={disabled}
+            onClick={onDrawClick}
+            className="font-display text-xs font-bold min-h-[36px] px-3 press-effect rounded transition-colors"
+            style={{
+              color: '#FEE440',
+              backgroundColor: '#FEE44015',
+              border: '1px solid #FEE44060',
+              opacity: disabled ? 0.45 : 1,
+              cursor: disabled ? 'not-allowed' : 'pointer',
+            }}
+          >
+            ✏ Dibujar
+          </button>
+        </>
+      )}
     </div>
   );
 }

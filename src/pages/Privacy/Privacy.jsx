@@ -44,10 +44,11 @@ export default function Privacy() {
               3. Análisis con IA
             </h2>
             <p className="text-sm leading-relaxed" style={{ color: 'var(--text2)' }}>
-              Las funciones de análisis con inteligencia artificial (patrones, retrospectiva, chat
-              reflexivo) estarán disponibles en una fase futura. Cuando estén activas, podrás
-              activarlas o desactivarlas desde Configuración. En la versión actual no se envían
-              datos a servicios de IA.
+              Podés activar o desactivar el análisis con IA desde Configuración → Privacidad y datos.
+              Cuando está activo, el texto de tus check-ins y entradas de diario puede enviarse a
+              Google Gemini para generar insights y patrones. No es un diagnóstico médico. Stickers
+              y dibujos del diario no se envían. Si lo desactivás, dejamos de enviar datos nuevos;
+              los insights guardados se ocultan pero no se borran hasta que elimines tu cuenta.
             </p>
           </section>
 

@@ -20,6 +20,8 @@ import { useCheckIn } from '../../context/CheckInContext';
 
 import { useToast } from '../../context/ToastContext';
 
+import AiAnalysisDisclaimer from '../ai/AiAnalysisDisclaimer';
+
 import { getRequestErrorMessage } from '../../utils/networkError';
 
 
@@ -782,9 +784,9 @@ export default function CheckInOverlay() {
 
                 />
 
+                <AiAnalysisDisclaimer context="checkin" className="mt-2" />
+
               </div>
-
-
 
               <div>
 

@@ -19,6 +19,7 @@ export default function Settings() {
     timezone: user?.timezone || '',
     dailyReminder: user?.preferences?.dailyReminder || false,
     dailyQuote: user?.preferences?.dailyQuote !== false,
+    aiAnalysis: user?.preferences?.aiAnalysis === true,
   });
 
   const [passwordForm, setPasswordForm] = useState({
@@ -48,6 +49,7 @@ export default function Settings() {
         preferences: {
           dailyReminder: form.dailyReminder,
           dailyQuote: form.dailyQuote,
+          aiAnalysis: form.aiAnalysis,
         },
       });
       updateUser(res.data);
@@ -217,14 +219,22 @@ export default function Settings() {
           </p>
         </button>
 
-        <label className="flex items-center justify-between min-h-[44px] opacity-60">
+        <label className="flex items-start justify-between gap-4 min-h-[44px]">
           <div>
             <span className="text-sm">Análisis con IA</span>
-            <p className="text-xs mt-1" style={{ color: 'var(--text2)' }}>
-              Próximamente — disponible en una fase futura
+            <p className="text-xs mt-1 leading-relaxed" style={{ color: 'var(--text2)' }}>
+              {form.aiAnalysis
+                ? 'Tus check-ins (notas y tags) pueden enviarse a Google Gemini para generar insights. No es un diagnóstico médico.'
+                : 'Desactivado: no enviamos texto de check-ins ni journal a proveedores de IA. Los insights existentes se ocultan.'}
             </p>
           </div>
-          <input type="checkbox" disabled checked={false} aria-label="Análisis con IA próximamente" />
+          <input
+            type="checkbox"
+            checked={form.aiAnalysis}
+            onChange={(e) => setForm({ ...form, aiAnalysis: e.target.checked })}
+            aria-label="Análisis con IA"
+            className="mt-1 shrink-0"
+          />
         </label>
 
         {privacyMessage && (

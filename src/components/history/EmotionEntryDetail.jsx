@@ -5,6 +5,7 @@ import NeonButton from '../ui/NeonButton';
 import EggAvatar from '../ui/EggAvatar';
 import { useCheckIn } from '../../context/CheckInContext';
 import { useUserEmotions } from '../../hooks/useUserEmotions';
+import EntryInsightCard from './EntryInsightCard';
 
 export default function EmotionEntryDetail({ entry, onClose, onDeleted }) {
   const { openCheckInForEdit, notifySaved } = useCheckIn();
@@ -100,6 +101,8 @@ export default function EmotionEntryDetail({ entry, onClose, onDeleted }) {
               ))}
             </div>
           )}
+
+          <EntryInsightCard entryId={entry.id} entry={entry} />
         </div>
 
         {error && <p className="text-sm mt-4" style={{ color: '#FF1E73' }}>{error}</p>}

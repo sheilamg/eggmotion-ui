@@ -11,7 +11,6 @@ export default function JournalBodyEditor({
   placeholder = 'Empezá a escribir... o colocá un sticker ✨',
 }) {
   const isExternalUpdate = useRef(false);
-  const readyCalled = useRef(false);
 
   const editor = useEditor({
     extensions: [
@@ -38,10 +37,9 @@ export default function JournalBodyEditor({
   });
 
   useEffect(() => {
-    if (editor && onEditorReady && !readyCalled.current) {
-      onEditorReady(editor);
-      readyCalled.current = true;
-    }
+    if (!onEditorReady) return undefined;
+    if (editor) onEditorReady(editor);
+    return () => onEditorReady(null);
   }, [editor, onEditorReady]);
 
   useEffect(() => {

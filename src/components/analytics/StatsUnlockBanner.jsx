@@ -16,12 +16,16 @@ const TIER_COPY = {
   full: {
     title: 'Tu paisaje emocional toma forma',
     detail: 'Tenés suficientes datos para explorar tendencias y comparar períodos.',
-    next: 'Los insights con IA llegarán en una fase posterior.',
+    nextAiOff: 'Activá el análisis con IA en Configuración para recibir insights semanales y patrones.',
+    nextAiOn: 'Los patrones avanzados se desbloquean con 30+ check-ins en total y 7 esta semana.',
   },
 };
 
-export default function StatsUnlockBanner({ tier, totalEntries, patterns = [] }) {
+export default function StatsUnlockBanner({ tier, totalEntries, patterns = [], aiEnabled = false }) {
   const copy = TIER_COPY[tier] || TIER_COPY.empty;
+  const nextLine = tier === 'full'
+    ? (aiEnabled ? copy.nextAiOn : copy.nextAiOff)
+    : copy.next;
 
   return (
     <div className="flex flex-col gap-5">
@@ -34,7 +38,7 @@ export default function StatsUnlockBanner({ tier, totalEntries, patterns = [] })
           {copy.detail}
         </p>
         <p className="text-xs mt-3" style={{ color: 'var(--text2)' }}>
-          {totalEntries} registros · {copy.next}
+          {totalEntries} registros · {nextLine}
         </p>
       </SurfaceCard>
 

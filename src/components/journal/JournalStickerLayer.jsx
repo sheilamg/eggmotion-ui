@@ -65,7 +65,8 @@ function StickerNode({ sticker, isSelected, onSelect, onChange, stageSize, inter
   ]);
 
   if (normalized.type === 'drawing' && image) {
-    const size = 80 * normalized.scaleX;
+    const height = 80 * normalized.scaleY;
+    const width = height * (image.width / image.height || 1);
     return (
       <>
         <KonvaImage
@@ -73,10 +74,10 @@ function StickerNode({ sticker, isSelected, onSelect, onChange, stageSize, inter
           image={image}
           x={x}
           y={y}
-          width={size}
-          height={size}
-          offsetX={size / 2}
-          offsetY={size / 2}
+          width={width}
+          height={height}
+          offsetX={width / 2}
+          offsetY={height / 2}
           rotation={normalized.rotation}
           draggable={draggable}
           onClick={onSelect}

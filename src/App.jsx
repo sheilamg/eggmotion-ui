@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import AppShell from './components/layout/AppShell';
 import History from './pages/History';
 import Analytics from './pages/Analytics';
+import Retrospective from './pages/Retrospective';
 import Journal from './pages/Journal/JournalPage';
 import Settings from './pages/Settings/Settings';
 import { AuthProvider } from './auth/AuthContext';
@@ -46,6 +47,7 @@ function App() {
                   <Route path="journal" element={<Journal />} />
                   <Route path="journal/:id" element={<Journal />} />
                   <Route path="analytics" element={<Analytics />} />
+                  <Route path="analytics/retrospective" element={<Retrospective />} />
                   <Route path="settings" element={<Settings />} />
                   <Route path="calendar" element={<Navigate to="/history" replace />} />
                   <Route path="emotions" element={<Navigate to="/home" replace />} />
