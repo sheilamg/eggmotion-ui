@@ -1,32 +1,229 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
+@import 'tailwindcss';
 
+@theme {
+  --font-sans: 'Inter', sans-serif;
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-pixel: 'Press Start 2P', monospace;
+
+  --animate-fade-in-down: fade-in-down 0.5s ease-out;
+  --animate-float: float 3s ease-in-out infinite;
+  --animate-fade-in: fade-in 0.3s ease-out forwards;
+  --animate-scale-in: scale-in 0.25s ease-out forwards;
+  --animate-pulse-glow: pulse-glow 2s ease-in-out infinite;
+  --animate-spin: spin 1s linear infinite;
+}
+
+:root {
+  --bg: #0d0d0d;
+  --bg2: #1a1a2e;
+  --surface: #1e1e2e;
+  --surface2: #252540;
+  --border: #2a2a50;
+  --text: #f8f8f8;
+  --text2: #a0a0b0;
+  --violet: #9b5de5;
+  --pink: #f15bb5;
+  --cyan: #00f5d4;
+  --yellow: #fee440;
+  --lime: #39ff14;
+  --rose: #ff1e73;
+}
+
+[data-theme='light'] {
+  --bg: #faf9f6;
+  --bg2: #f0efe9;
+  --surface: #ffffff;
+  --surface2: #f5f4f0;
+  --border: #e0dfd8;
+  --text: #1a1a1a;
+  --text2: #6b6b7b;
+}
+
+html,
 body {
+  background-color: var(--bg);
+  color: var(--text);
   font-family: 'Inter', sans-serif;
-  background-color: #1a1a1a;
-  color: #fff;
   margin: 0;
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
-nav ul {
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  justify-content: space-around;
-  background-color: #2a2a2a;
-  padding: 1rem 0;
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
+}
+
+.font-pixel {
+  font-family: 'Press Start 2P', monospace;
+}
+
+.font-display {
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.neon-violet {
+  box-shadow: 0 0 12px #9b5de580, 0 0 24px #9b5de540, inset 0 0 12px #9b5de510;
+}
+
+.neon-text-violet {
+  text-shadow: 0 0 8px #9b5de5, 0 0 16px #9b5de580;
+}
+
+.neon-text-cyan {
+  text-shadow: 0 0 8px #00f5d4, 0 0 16px #00f5d480;
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in-down {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out forwards;
+}
+
+.animate-fade-in-down {
+  animation: fade-in-down 0.5s ease-out;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.25s ease-out forwards;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.press-effect:active {
+  transform: scale(0.95);
+  transition: transform 0.1s;
+}
+
+.grain {
   position: fixed;
-  bottom: 0;
-  width: 100%;
+  inset: 0;
+  pointer-events: none;
+  z-index: 999;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
 }
 
-nav a {
-  color: #fff;
-  text-decoration: none;
+.journal-body-editor[data-placeholder]:empty::before {
+  content: attr(data-placeholder);
+  color: var(--text2);
+  pointer-events: none;
+  float: left;
+  height: 0;
 }
 
-main {
-  padding-bottom: 5rem; /* to avoid content being hidden by the nav bar */
+.journal-body-editor p {
+  margin: 0 0 0.75em;
+}
+
+.journal-body-editor ul {
+  list-style-type: disc;
+  margin: 0 0 0.75em;
+  padding-left: 1.5em;
+}
+
+.journal-body-editor ol {
+  list-style-type: decimal;
+  margin: 0 0 0.75em;
+  padding-left: 1.5em;
+}
+
+.journal-body-editor li {
+  display: list-item;
+  margin: 0.2em 0;
+}
+
+.journal-body-editor li p {
+  margin: 0;
+}
+
+.journal-body-editor strong {
+  font-weight: 700;
+}
+
+.journal-body-editor em {
+  font-style: italic;
+}
+
+.journal-body-editor s {
+  text-decoration: line-through;
+}
+
+.journal-canvas .ProseMirror {
+  min-height: 320px;
+  color: var(--text);
+}
+
+.journal-canvas .ProseMirror:focus {
+  outline: none;
 }

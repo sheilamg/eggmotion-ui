@@ -5,55 +5,55 @@ import axios from '../api/axios';
 
 const AuthContext = createContext();
 
+function resolveRedirect(redirectTo, profile) {
+  if (!redirectTo || redirectTo === '/welcome' || redirectTo === '/login') {
+    return profile.onboardingCompleted ? '/home' : '/onboarding';
+  }
+  if (!profile.onboardingCompleted) {
+    return '/onboarding';
+  }
+  return redirectTo;
+}
+
 export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
   const authState = useAuthState();
 
-  const login = async (credentials) => {
-    try {
-      console.log('🚀 Iniciando proceso de login...');
-      
-      // 1. Hacer login
-      const res = await axios.post('/auth/login', credentials);
-      const token = res.data.access_token;
-      
-      console.log('✅ Login exitoso, token obtenido:', token ? 'Sí' : 'No');
-      
-      // 2. Guardar token inmediatamente (sin perfil)
-      authState.login(null, token);
-      
-      // 3. Esperar un momento para que el token se procese
-      console.log('⏳ Esperando procesamiento del token...');
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      // 4. Ahora obtener el perfil
-      console.log('👤 Obteniendo perfil del usuario...');
-      const profile = await axios.get('/users/profile');
-      
-      // 5. Actualizar el estado con el perfil
-      authState.updateUser(profile.data);
-      
-      console.log('🎉 Login completo, redirigiendo...');
-      navigate('/home');
-    } catch (error) {
-      console.error('❌ Error during login:', error);
-      throw error;
-    }
+  const afterAuth = (profile, redirectTo) => {
+    authState.updateUser(profile);
+    navigate(resolveRedirect(redirectTo, profile), { replace: true });
+  };
+
+  const login = async (credentials, redirectTo) => {
+    const res = await axios.post('/auth/login', credentials);
+    authState.login(null, res.data.access_token, res.data.refresh_token);
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    const profile = await axios.get('/users/profile');
+    afterAuth(profile.data, redirectTo);
+  };
+
+  const register = async (payload, redirectTo) => {
+    const res = await axios.post('/auth/register', payload);
+    authState.login(null, res.data.access_token, res.data.refresh_token);
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    const profile = await axios.get('/users/profile');
+    afterAuth(profile.data, redirectTo);
   };
 
   const logout = () => {
-    console.log('🚪 Iniciando logout...');
     authState.logout();
-    navigate('/login');
+    navigate('/welcome');
   };
 
   const value = {
     user: authState.user,
     login,
+    register,
     logout,
+    updateUser: authState.updateUser,
     isAuthenticated: authState.isAuthenticated,
     loading: authState.loading,
-    checkAuthStatus: authState.checkAuthStatus
+    checkAuthStatus: authState.checkAuthStatus,
   };
 
   return (
@@ -63,6 +63,4 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-export const useAuth = () => {
-  return useContext(AuthContext);
-};
+export const useAuth = () => useContext(AuthContext);

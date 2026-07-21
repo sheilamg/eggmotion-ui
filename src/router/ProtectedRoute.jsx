@@ -1,30 +1,31 @@
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
-import { getToken, isTokenValid } from '../utils/auth';
+import { getToken, isTokenValid, getRefreshToken } from '../utils/auth';
+import BrandedLoadingScreen from '../components/ui/BrandedLoadingScreen';
 
 function ProtectedRoute() {
-  const { isAuthenticated, loading } = useAuth();
-  
-  // Verificación adicional del token
+  const { isAuthenticated, loading, user } = useAuth();
+  const location = useLocation();
+
   const token = getToken();
-  const isTokenValidLocal = isTokenValid(token);
-  
+  const hasValidSession = isTokenValid(token) || Boolean(getRefreshToken());
+
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-900">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-white text-lg">Verificando autenticación...</p>
-        </div>
-      </div>
-    );
+    return <BrandedLoadingScreen message="Verificando autenticación..." />;
   }
-  
-  // Verificar tanto el estado del contexto como la validez del token
-  if (!isAuthenticated || !isTokenValidLocal) {
-    return <Navigate to="/login" replace />;
+
+  if (!isAuthenticated || !hasValidSession) {
+    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   }
-  
+
+  if (!user?.onboardingCompleted && location.pathname !== '/onboarding') {
+    return <Navigate to="/onboarding" replace />;
+  }
+
+  if (user?.onboardingCompleted && location.pathname === '/onboarding') {
+    return <Navigate to="/home" replace />;
+  }
+
   return <Outlet />;
 }
 

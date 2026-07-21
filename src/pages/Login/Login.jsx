@@ -1,51 +1,62 @@
-import { useState, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import { useAuth } from '../../auth/AuthContext';
-import { Link, Navigate } from 'react-router-dom';
+import { Link, Navigate, useLocation, useSearchParams } from 'react-router-dom';
+import BrandedLoadingScreen from '../../components/ui/BrandedLoadingScreen';
+import GrainOverlay from '../../components/ui/GrainOverlay';
+import NeonButton from '../../components/ui/NeonButton';
+import ThemeToggle from '../../components/ui/ThemeToggle';
 
 function Login() {
   const [form, setForm] = useState({ email: '', password: '' });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const { login, isAuthenticated, loading } = useAuth();
+  const { login, isAuthenticated, loading, user } = useAuth();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
 
-  // Si ya está autenticado, redirigir a home
-  if (isAuthenticated) {
-    return <Navigate to="/home" replace />;
+  const redirectTo = useMemo(() => {
+    const fromState = location.state?.from;
+    const fromQuery = searchParams.get('redirect');
+    const candidate = fromState || fromQuery;
+    if (!candidate || candidate.startsWith('/welcome') || candidate.startsWith('/login')) {
+      return '/home';
+    }
+    return candidate;
+  }, [location.state, searchParams]);
+
+  const sessionExpired = searchParams.get('session') === 'expired';
+
+  if (isAuthenticated && user?.onboardingCompleted) {
+    return <Navigate to={redirectTo} replace />;
   }
 
-  // Si está cargando, mostrar loading
+  if (isAuthenticated && user && !user.onboardingCompleted) {
+    return <Navigate to="/onboarding" replace />;
+  }
+
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-xl">Verificando sesión...</p>
-        </div>
-      </div>
-    );
+    return <BrandedLoadingScreen message="Verificando sesión..." />;
   }
 
-  const handleChange = e => {
+  const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
-    // Limpiar error cuando el usuario empiece a escribir
     if (error) setError('');
   };
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
-    
+
     try {
-      await login(form);
+      await login(form, redirectTo);
     } catch (err) {
-      console.error('Login error:', err);
       if (err.response?.status === 401) {
         setError('Email o contraseña incorrectos');
       } else if (err.response?.status >= 500) {
-        setError('Error del servidor. Inténtalo de nuevo más tarde.');
+        setError('Error del servidor. Intentalo más tarde.');
       } else {
-        setError('Error al iniciar sesión. Verifica tu conexión.');
+        setError('Error al iniciar sesión. Verificá tu conexión.');
       }
     } finally {
       setIsLoading(false);
@@ -53,19 +64,50 @@ function Login() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
-      <div className="w-full max-w-md p-8 space-y-8 bg-gray-800 rounded-lg shadow-lg animate-fade-in-down">
-        <h2 className="text-3xl font-bold text-center">Bienvenido de vuelta</h2>
-        
+    <div
+      className="relative flex items-center justify-center min-h-screen p-4"
+      style={{ backgroundColor: 'var(--bg)', color: 'var(--text)' }}
+    >
+      <GrainOverlay />
+      <div className="absolute top-4 right-4 z-10">
+        <ThemeToggle />
+      </div>
+
+      <div
+        className="relative w-full max-w-md p-8 space-y-6 animate-fade-in-down surface-card"
+        style={{ borderRadius: 12 }}
+      >
+        <div className="text-center">
+          <p className="font-pixel text-[10px] neon-text-cyan mb-2" style={{ color: '#00F5D4' }}>
+            eggmotion
+          </p>
+          <h2 className="font-display text-2xl font-bold">Bienvenido de vuelta</h2>
+        </div>
+
+        {sessionExpired && (
+          <div
+            className="p-3 rounded-md text-sm text-center font-display"
+            style={{ backgroundColor: '#FEE44020', color: '#FEE440', border: '1px solid #FEE44040' }}
+            role="status"
+          >
+            Tu sesión expiró. Iniciá sesión de nuevo para continuar.
+          </div>
+        )}
+
         {error && (
-          <div className="bg-red-600 text-white p-3 rounded-md text-sm text-center">
+          <div
+            className="p-3 rounded-md text-sm text-center font-display"
+            style={{ backgroundColor: '#FF1E7320', color: '#FF1E73', border: '1px solid #FF1E7340' }}
+          >
             {error}
           </div>
         )}
-        
-        <form onSubmit={handleSubmit} className="space-y-6">
+
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label htmlFor="email" className="text-sm font-medium text-gray-400">Email</label>
+            <label htmlFor="email" className="font-pixel text-[7px]" style={{ color: 'var(--text2)' }}>
+              EMAIL
+            </label>
             <input
               id="email"
               name="email"
@@ -73,50 +115,57 @@ function Login() {
               placeholder="tu@email.com"
               value={form.email}
               onChange={handleChange}
-              className="w-full px-3 py-2 mt-1 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"
+              className="w-full px-3 py-3 mt-2 rounded-lg text-sm outline-none"
+              style={{
+                backgroundColor: 'var(--surface2)',
+                border: '1px solid var(--border)',
+                color: 'var(--text)',
+              }}
               required
               disabled={isLoading}
             />
           </div>
           <div>
-            <label htmlFor="password"
-                   className="text-sm font-medium text-gray-400">Contraseña</label>
+            <label htmlFor="password" className="font-pixel text-[7px]" style={{ color: 'var(--text2)' }}>
+              CONTRASEÑA
+            </label>
             <input
               id="password"
               name="password"
-              placeholder="Contraseña"
               type="password"
+              placeholder="Contraseña"
               value={form.password}
               onChange={handleChange}
-              className="w-full px-3 py-2 mt-1 text-white bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-300"
+              className="w-full px-3 py-3 mt-2 rounded-lg text-sm outline-none"
+              style={{
+                backgroundColor: 'var(--surface2)',
+                border: '1px solid var(--border)',
+                color: 'var(--text)',
+              }}
               required
               disabled={isLoading}
             />
+            <p className="text-right mt-2">
+              <Link to="/forgot-password" className="text-xs" style={{ color: '#00F5D4' }}>
+                ¿Olvidaste tu contraseña?
+              </Link>
+            </p>
           </div>
-          <button
-            type="submit"
-            disabled={isLoading}
-            className={`w-full py-2 font-semibold text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-blue-500 transition-colors duration-300 ${
-              isLoading 
-                ? 'bg-gray-600 cursor-not-allowed' 
-                : 'bg-blue-600 hover:bg-blue-700'
-            }`}
-          >
-            {isLoading ? (
-              <div className="flex items-center justify-center">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                Iniciando sesión...
-              </div>
-            ) : (
-              'Iniciar sesión'
-            )}
-          </button>
+
+          <NeonButton type="submit" color="#9B5DE5" className="w-full min-h-[44px]" disabled={isLoading}>
+            {isLoading ? 'INICIANDO...' : 'INICIAR SESIÓN'}
+          </NeonButton>
         </form>
-        
-        <p className="text-sm text-center text-gray-400">
-          ¿No tienes una cuenta?{' '}
-          <Link to="/register" className="font-medium text-blue-500 hover:underline">
-            Regístrate
+
+        <p className="text-sm text-center" style={{ color: 'var(--text2)' }}>
+          ¿No tenés cuenta?{' '}
+          <Link to="/register" style={{ color: '#9B5DE5' }}>
+            Registrate
+          </Link>
+        </p>
+        <p className="text-sm text-center">
+          <Link to="/welcome" style={{ color: 'var(--text2)' }}>
+            ← Volver al inicio
           </Link>
         </p>
       </div>
